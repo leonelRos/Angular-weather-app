@@ -1,120 +1,98 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Subject} from 'rxjs';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Router} from '@angular/router';
+import {WeatherService} from '../weather.service';
+import {UiService} from '../ui.service';
+import {Subscription} from 'rxjs';
+import {first} from 'rxjs/operators';
+// import {FbService} from '../../services/fb/fb.service';
 
-@Injectable()
-export class WeatherService {
+@Component({
+  selector: 'app-weather-card',
+  templateUrl: './weather-card.component.html',
+  styleUrls: ['./weather-card.component.css']
+})
+export class WeatherCardComponent implements OnInit, OnDestroy {
 
-  constructor(public http: HttpClient) {
-  }
+  // @Input() set city(city: string) {
+  //   this.cityName = city;
+  //   this.weather.get(city)
+  //     .pipe(first())
+  //     .subscribe((payload) => {
+  //       this.state = payload.weather[0].main;
+  //       this.temp = Math.ceil(payload.main.temp);
+  //     }, (err) => {
+  //       this.errorMessage = err.error.message;
+  //       setTimeout(() => {
+  //         this.errorMessage = '';
+  //       }, 3000);
+  //     });
+  //   this.weather.getForecast(city)
+  //     .pipe(first())
+  //     .subscribe((payload) => {
+  //       this.maxTemp = Math.round(payload[0].main.temp);
+  //       this.minTemp = Math.round(payload[0].main.temp);
+  //       for (const res of payload) {
+  //         if (new Date().toLocaleDateString('en-GB') === new Date(res.dt_txt).toLocaleDateString('en-GB')) {
+  //           this.maxTemp = res.main.temp > this.maxTemp ? Math.round(res.main.temp) : this.maxTemp;
+  //           this.minTemp = res.main.temp < this.minTemp ? Math.round(res.main.temp) : this.minTemp;
+  //         }
+  //       }
+  //     }, (err) => {
+  //       this.errorMessage = err.error.message;
+  //       setTimeout(() => {
+  //         this.errorMessage = '';
+  //       }, 3000);
+  //     });
 
-  getCityWeatherByName(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<string> {
-    const dataSub = new Subject<string>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((data) => {
-        dataSub.next(data['weather']);
-      }, (err) => {
-        console.log(err);
-      });
-    return dataSub;
-  }
+  // }
 
-  getCitiesWeathersByNames(cities: Array<string>, metric: 'metric' | 'imperial' = 'metric'): Subject<any> {
-    const citiesSubject = new Subject();
-    cities.forEach((city) => {
-      citiesSubject.next(this.http.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`));
-    });
-    return citiesSubject;
-  }
+  // @Input() addMode;
+  // @Output() cityStored = new EventEmitter();
+  // citesWeather: Object;
+  // darkMode: boolean;
+  // sub1: Subscription;
+  // state: string;
+  // temp: number;
+  // maxTemp: number;
+  // minTemp: number;
+  // errorMessage: string;
+  // cityName;
+  // cityAdded = false;
 
-  getWeatherState(city: string): Subject<string> {
-    const dataSubject = new Subject<string>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((data) => {
-        dataSubject.next(data['weather'][0].main);
-      });
-    return dataSubject;
-  }
+  // constructor(public weather: WeatherService,
+  //             public router: Router,
+  //             public ui: UiService) {
+  //             // public fb: FbService 
+  // }
 
-  getCurrentTemp(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<number> {
-    const dataSubject = new Subject<number>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        dataSubject.next(Math.round(Number(weather.main.temp)));
-      });
-    return dataSubject;
-  }
+  // ngOnInit() {
+  //   this.sub1 = this.ui.darkModeState.subscribe((isDark) => {
+  //     this.darkMode = isDark;
+  //   });
+  // }
 
+  // ngOnDestroy() {
+  //   this.sub1.unsubscribe();
+  // }
 
-  getCurrentHum(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<number> {
-    const dataSubject = new Subject<number>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        console.log(weather);
-        dataSubject.next(weather.main.humidity);
-      });
-    return dataSubject;
-  }
+  // openDetails() {
+  //   if (!this.addMode) {
+  //     this.router.navigateByUrl('/details/' + this.cityName);
+  //   }
+  // }
 
+  // addCity() {
+  //   this.fb.addCity(this.cityName).subscribe(() => {
+  //     this.cityName = null;
+  //     this.maxTemp = null;
+  //     this.minTemp = null;
+  //     this.state = null;
+  //     this.temp = null;
+  //     this.cityAdded = true;
+  //     this.cityStored.emit();
+  //     setTimeout(() => this.cityAdded = false, 2000);
+  //   });
+  // }
 
-  getCurrentWind(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<number>  {
-    const dataSubject = new Subject<number>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        dataSubject.next(Math.round(Math.round(weather.wind.speed)));
-      });
-    return dataSubject;
-  }
-
-
-  getMaxTemp(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<number>  {
-    const dataSubject = new Subject<number>();
-    let max: number;
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        max = weather.list[0].main.temp;
-        weather.list.forEach((value) => {
-          if (max < value.main.temp) {
-            max = value.main.temp;
-          }
-        });
-        dataSubject.next(Math.round(max));
-      });
-    return dataSubject;
-  }
-
-  getMinTemp(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<number>  {
-    const dataSubject = new Subject<number>();
-    let min: number;
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        min = weather.list[0].main.temp;
-        weather.list.forEach((value) => {
-          if (min > value.main.temp) {
-            min = value.main.temp;
-          }
-        });
-        dataSubject.next(Math.round(min));
-      });
-    return dataSubject;
-  }
-
-  getForecast(city: string, metric: 'metric' | 'imperial' = 'metric'): Subject<Array<any>>  {
-    const dataSubject = new Subject<Array<any>>();
-    this.http.get(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${metric}&APPID=952d6b1a52fe15a7b901720074680562`)
-      .subscribe((weather: any) => {
-        dataSubject.next(weather.list);
-      });
-    return dataSubject;
-  }
 
 }
