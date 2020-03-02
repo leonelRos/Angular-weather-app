@@ -26,3 +26,5 @@ import { DetailsComponent } from './details/details.component';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+
